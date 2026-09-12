@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>助動詞道場</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
+
+:root{
+  --paper:#F2E9D8;
+  --card:#FBF6EA;
+  --border:#D8C9A0;
+  --ink:#2B2622;
+  --ink-soft:#6B6154;
+  --indigo:#24384A;
+  --vermillion:#B8391F;
+  --bamboo:#4F7942;
+  --bamboo-bg:#E3ECDD;
+  --danger:#A13328;
+  --danger-bg:#F5E1DE;
+  --hl:#F0CE7A;
+}
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; background:var(--paper); }
+body{
+  font-family:'Zen Kaku Gothic New', sans-serif;
+  color:var(--ink);
+  -webkit-tap-highlight-color:transparent;
+}
+#app{ min-height:100vh; padding-bottom:40px; }
+.app-header{
+  position:sticky; top:0; z-index:10;
+  background:var(--indigo); color:var(--card);
+  padding:14px 16px; display:flex; align-items:center; gap:10px;
+  font-family:'Shippori Mincho', serif; font-size:18px; font-weight:700;
+}
+.back-btn{
+  background:none; border:none; color:var(--card); font-size:20px;
+  cursor:pointer; padding:0 4px 0 0; font-family:inherit; line-height:1;
+}
+.screen{ padding:16px; max-width:480px; margin:0 auto; }
+.lead{ font-size:13px; color:var(--ink-soft); margin:0 0 14px; }
+.summary-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+.summary-card{ background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; }
+.summary-label{ font-size:12px; color:var(--ink-soft); margin:0 0 4px; }
+.summary-value{ font-size:22px; font-weight:700; margin:0; font-family:'Shippori Mincho', serif; }
+.stage-row{ display:flex; align-items:center; gap:12px; padding:14px 4px; border-bottom:1px solid var(--border); cursor:pointer; }
+.stage-row:last-child{ border-bottom:none; }
+.stage-row.locked{ opacity:0.55; cursor:default; }
+.stage-emblem{ width:44px; height:44px; border-radius:50%; background:var(--indigo); color:var(--card);
+  display:flex; align-items:center; justify-content:center; font-family:'Shippori Mincho', serif; font-size:20px; font-weight:700; flex-shrink:0; }
+.stage-emblem.locked{ background:var(--border); color:var(--ink-soft); font-size:16px; }
+.stage-name{ font-family:'Shippori Mincho', serif; font-size:16px; font-weight:700; margin:0; }
+.stage-desc{ font-size:13px; color:var(--ink-soft); margin:2px 0 0; }
+.stage-trailing{ text-align:right; flex-shrink:0; }
+.stars{ display:inline-flex; gap:2px; }
+.star{ font-size:15px; color:var(--border); }
+.star.filled{ color:var(--vermillion); }
+.stat-bar{ display:flex; justify-content:space-between; font-size:13px; color:var(--ink-soft); margin-bottom:12px; }
+.stat-bar b{ color:var(--ink); font-weight:700; }
+.paper-card{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.1rem 1rem; margin-bottom:8px; text-align:center; }
+.hint-text{ font-size:13px; color:var(--vermillion); text-align:center; margin:0 0 12px; min-height:16px; }
+.timer-track{ height:4px; background:var(--border); border-radius:2px; overflow:hidden; margin-bottom:16px; }
+.timer-fill{ height:100%; width:100%; background:var(--indigo); transition:width .08s linear; }
+.score-track{ height:6px; background:var(--border); border-radius:3px; overflow:hidden; margin-bottom:14px; }
+.score-fill{ height:100%; width:0%; background:var(--bamboo); transition:width .3s ease; }
+.option-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:12px; }
+.option-btn{ padding:12px; font-size:16px; font-weight:500; border-radius:10px; border:1px solid var(--border);
+  background:var(--card); color:var(--ink); font-family:inherit; cursor:pointer; }
+.option-btn:disabled{ cursor:default; }
+.option-btn.correct{ background:var(--bamboo-bg); color:var(--bamboo); border-color:var(--bamboo); }
+.option-btn.wrong{ background:var(--danger-bg); color:var(--danger); border-color:var(--danger); animation:kbShake .3s; }
+.feedback-text{ min-height:52px; font-size:13px; line-height:1.6; color:var(--ink-soft); margin:0 0 8px; }
+.feedback-text.success{ color:var(--bamboo); }
+.feedback-text.danger{ color:var(--danger); }
+.more-link{ font-size:13px; color:var(--vermillion); text-decoration:none; }
+.btn-primary{ background:var(--indigo); color:var(--card); border:none; padding:12px 22px; border-radius:10px;
+  font-family:inherit; font-size:15px; font-weight:700; cursor:pointer; }
+.btn-secondary{ background:transparent; border:1px solid var(--border); color:var(--ink); padding:10px 18px;
+  border-radius:10px; font-family:inherit; font-size:14px; cursor:pointer; }
+mark.hl{ background:var(--hl); padding:0 2px; border-radius:4px; }
+.table-panel{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:0.5rem 1rem; margin-bottom:12px; }
+.table-row{ display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--border); font-size:14px; }
+.table-row:last-child{ border-bottom:none; }
+.table-row .form-label{ color:var(--ink-soft); }
+.table-row .val{ font-weight:700; }
+.table-row.active{ background:rgba(184,57,31,0.08); border-radius:6px; }
+.assembly-row{ display:flex; justify-content:center; gap:6px; margin-bottom:8px; min-height:44px; }
+.assembly-box{ min-width:56px; height:38px; border:1px solid var(--border); border-radius:10px; display:flex;
+  align-items:center; justify-content:center; font-size:15px; font-weight:700; background:var(--card); }
+.review-list{ text-align:left; margin:0 0 18px; }
+.review-item{ background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:8px; }
+.review-q{ font-size:14px; font-weight:500; margin:0 0 4px; }
+.review-a{ font-size:13px; color:var(--vermillion); margin:0 0 4px; }
+.review-note{ font-size:12px; color:var(--ink-soft); margin:0; line-height:1.5; }
+.review-perfect{ font-size:14px; color:var(--bamboo); margin:0 0 16px; }
+.unlock-overlay{ position:fixed; inset:0; background:rgba(36,56,74,0.78); display:flex; align-items:center;
+  justify-content:center; z-index:50; animation:kbFadeIn .3s ease; padding:24px; }
+.unlock-card{ background:var(--card); border-radius:16px; padding:28px 24px; text-align:center; max-width:280px;
+  animation:kbPopIn .4s cubic-bezier(.34,1.56,.64,1); }
+.unlock-emblem{ width:64px; height:64px; border-radius:50%; background:var(--vermillion); color:var(--card);
+  display:flex; align-items:center; justify-content:center; font-family:'Shippori Mincho', serif; font-size:28px; font-weight:700; margin:0 auto 14px; }
+.unlock-title{ font-family:'Shippori Mincho', serif; font-size:14px; color:var(--ink-soft); margin:0 0 4px; }
+.unlock-name{ font-family:'Shippori Mincho', serif; font-size:20px; font-weight:700; margin:0 0 20px; }
+@keyframes kbShake{ 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-4px); } 75%{ transform:translateX(4px); } }
+@keyframes kbFadeIn{ from{ opacity:0; } to{ opacity:1; } }
+@keyframes kbPopIn{ from{ transform:scale(0.7); opacity:0; } to{ transform:scale(1); opacity:1; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+
+var STORAGE_KEY = 'jodoushi_progress_v1';
+
+function loadProgress(){
+  try{
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return {s1:0,s2:0,s3:0,s4:0,s5:0,s6:0,s7:0};
+    var p = JSON.parse(raw);
+    return {s1:p.s1||0,s2:p.s2||0,s3:p.s3||0,s4:p.s4||0,s5:p.s5||0,s6:p.s6||0,s7:p.s7||0};
+  }catch(e){ return {s1:0,s2:0,s3:0,s4:0,s5:0,s6:0,s7:0}; }
+}
+function saveProgress(p){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }catch(e){}
+}
+var SEEN_KEY = 'jodoushi_unlocked_seen_v1';
+function loadSeenUnlocked(){
+  try{
+    var raw = localStorage.getItem(SEEN_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+function saveSeenUnlocked(ids){
+  try{ localStorage.setItem(SEEN_KEY, JSON.stringify(ids)); }catch(e){}
+}
+var MISTAKE_KEY = 'jodoushi_mistakes_v1';
+function loadMistakes(){
+  try{
+    var raw = localStorage.getItem(MISTAKE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){ return []; }
+}
+function saveMistakes(ids){
+  try{ localStorage.setItem(MISTAKE_KEY, JSON.stringify(ids)); }catch(e){}
+}
+function recordMistake(id){
+  if(!id) return;
+  var ids = loadMistakes();
+  if(ids.indexOf(id)===-1){ ids.push(id); saveMistakes(ids); }
+}
+function removeMistake(id){
+  if(!id) return;
+  var ids = loadMistakes();
+  var next = ids.filter(function(x){ return x!==id; });
+  if(next.length!==ids.length){ saveMistakes(next); }
+}
+function starsFor(score){
+  if(score>=150) return 3;
+  if(score>=100) return 2;
+  if(score>=50) return 1;
+  return 0;
+}
+function shuffle(arr){
+  var a = arr.slice();
+  for(var i=a.length-1;i>0;i--){
+    var j = Math.floor(Math.random()*(i+1));
+    var t=a[i]; a[i]=a[j]; a[j]=t;
+  }
+  return a;
+}
+function heartsHtml(lives){
+  var s = '';
+  for(var i=0;i<3;i++){
+    s += '<span style="color:'+(i<lives?'var(--vermillion)':'var(--border)')+';font-size:16px;">'+(i<lives?'\u2665':'\u2661')+'</span>';
+  }
+  return s;
+}
+
+var MAX_SCORE = 250;
+
+var MAIN_STAGES = [
+  {id:'s3', emblem:'活', name:'活用表の蔵', desc:'活用形を埋める'},
+  {id:'s1', emblem:'識', name:'識別道場', desc:'意味を仕分ける'},
+  {id:'s4', emblem:'組', name:'一文組み立て橋', desc:'接続順に組み立てる'},
+  {id:'s2', emblem:'接', name:'接続の間', desc:'接続のルールをつなぐ'},
+  {id:'s5', emblem:'文', name:'文完成の巻物', desc:'意味と接続の両方から選ぶ'}
+];
+var BONUS_STAGES = [
+  {id:'s6', emblem:'苦', name:'苦手克服の道', desc:'今までに間違えた問題だけをやり直す'},
+  {id:'s7', emblem:'交', name:'活用表クロスワード', desc:'活用形を交差させて解く上級パズル'}
+];
+var ALL_STAGES = MAIN_STAGES.concat(BONUS_STAGES);
+
+function computeMainUnlocked(progress){
+  var unlocked = {};
+  MAIN_STAGES.forEach(function(s,i){
+    if(i===0){ unlocked[s.id] = true; }
+    else { unlocked[s.id] = unlocked[MAIN_STAGES[i-1].id] && starsFor(progress[MAIN_STAGES[i-1].id])>=2; }
+  });
+  return unlocked;
+}
+function isBonusUnlocked(progress){
+  return MAIN_STAGES.every(function(s){ return starsFor(progress[s.id])>=2; });
+}
+
+function progressRingSvg(cleared, total){
+  var radius = 24, circumference = 2*Math.PI*radius;
+  var pct = total>0 ? cleared/total : 0;
+  var offset = circumference*(1-pct);
+  return '<svg width="60" height="60" viewBox="0 0 60 60" aria-hidden="true">'
+    + '<circle cx="30" cy="30" r="'+radius+'" fill="none" stroke="var(--border)" stroke-width="7"></circle>'
+    + '<circle cx="30" cy="30" r="'+radius+'" fill="none" stroke="var(--vermillion)" stroke-width="7" stroke-linecap="round" '
+    +   'stroke-dasharray="'+circumference.toFixed(2)+'" stroke-dashoffset="'+offset.toFixed(2)+'" transform="rotate(-90 30 30)"></circle>'
+    + '<text x="30" y="35" text-anchor="middle" font-size="14" font-weight="700" fill="var(--ink)">'+cleared+'/'+total+'</text>'
+    + '</svg>';
+}
+
+var lastDisplayedTotal = null;
+function animateCountUp(el, from, to, duration){
+  var startTime = null;
+  function step(ts){
+    if(!startTime) startTime = ts;
+    var progress = Math.min(1, (ts-startTime)/duration);
+    el.textContent = Math.round(from + (to-from)*progress);
+    if(progress<1){ requestAnimationFrame(step); }
+  }
+  requestAnimationFrame(step);
+}
+
+var app = document.getElementById('app');
+
+function showUnlockCelebration(stageId){
+  var stage = ALL_STAGES.filter(function(s){ return s.id===stageId; })[0];
+  if(!stage) return;
+  var overlay = document.createElement('div');
+  overlay.className = 'unlock-overlay';
+  overlay.innerHTML = ''
+    + '<div class="unlock-card">'
+    +   '<div class="unlock-emblem">'+stage.emblem+'</div>'
+    +   '<p class="unlock-title">新しいステージが開放されました</p>'
+    +   '<p class="unlock-name">'+stage.name+'</p>'
+    +   '<button class="btn-primary" id="unlockGoBtn">挑戦する</button>'
+    +   '<p style="margin:12px 0 0;"><a href="#" id="unlockLaterBtn" class="more-link">あとで</a></p>'
+    + '</div>';
+  document.body.appendChild(overlay);
+  function close(){ overlay.remove(); }
+  overlay.querySelector('#unlockGoBtn').addEventListener('click', function(){ close(); renderStage(stage.id); });
+  overlay.querySelector('#unlockLaterBtn').addEventListener('click', function(e){ e.preventDefault(); close(); });
+}
+
+function renderHome(){
+  var progress = loadProgress();
+  var mainUnlockedMap = computeMainUnlocked(progress);
+  var bonusUnlocked = isBonusUnlocked(progress);
+  var clearedCount = MAIN_STAGES.filter(function(s){ return starsFor(progress[s.id])>=2; }).length;
+  var totalScore = ALL_STAGES.reduce(function(a,s){ return a+progress[s.id]; },0);
+
+  var unlockedIdsNow = MAIN_STAGES.filter(function(s){ return mainUnlockedMap[s.id]; }).map(function(s){ return s.id; });
+  if(bonusUnlocked){ unlockedIdsNow = unlockedIdsNow.concat(BONUS_STAGES.map(function(s){ return s.id; })); }
+  var seenUnlocked = loadSeenUnlocked();
+  var newlyUnlocked = [];
+  if(seenUnlocked===null){
+    saveSeenUnlocked(unlockedIdsNow);
+  } else {
+    newlyUnlocked = unlockedIdsNow.filter(function(id){ return seenUnlocked.indexOf(id)===-1; });
+    if(newlyUnlocked.length>0){ saveSeenUnlocked(unlockedIdsNow); }
+  }
+
+  function buildRow(s, isUnlocked, indexLabel, lockedDesc){
+    var score = progress[s.id];
+    var stars = starsFor(score);
+    var starHtml = [0,1,2].map(function(k){ return '<span class="star '+(k<stars?'filled':'')+'">★</span>'; }).join('');
+    var descText = isUnlocked ? s.desc : lockedDesc;
+    var trailing = isUnlocked
+      ? '<p style="margin:0 0 2px;font-size:13px;color:var(--ink-soft);">'+score+'点</p><div class="stars">'+starHtml+'</div>'
+      : '<div class="stars">'+starHtml+'</div>';
+    return ''
+      + '<div class="stage-row '+(isUnlocked?'':'locked')+'" data-stage="'+(isUnlocked?s.id:'')+'">'
+      +   '<div class="stage-emblem '+(isUnlocked?'':'locked')+'">'+(isUnlocked?s.emblem:'\u9396')+'</div>'
+      +   '<div style="flex:1;">'
+      +     '<p class="stage-name" style="color:'+(isUnlocked?'var(--ink)':'var(--ink-soft)')+';">'+indexLabel+s.name+'</p>'
+      +     '<p class="stage-desc">'+descText+'</p>'
+      +   '</div>'
+      +   '<div class="stage-trailing">'+trailing+'</div>'
+      + '</div>';
+  }
+
+  var mainRows = MAIN_STAGES.map(function(s,i){
+    return buildRow(s, mainUnlockedMap[s.id], (i+1)+'. ', i+'のステージで★2以上とると開放');
+  }).join('');
+
+  var bonusRows = BONUS_STAGES.map(function(s){
+    return buildRow(s, bonusUnlocked, '', '5つのステージをすべて★2以上でクリアすると開放');
+  }).join('');
+
+  app.innerHTML = ''
+    + '<div class="app-header">助動詞道場</div>'
+    + '<div class="screen">'
+    +   '<div class="summary-grid">'
+    +     '<div class="summary-card" style="display:flex;align-items:center;gap:10px;">'+progressRingSvg(clearedCount, MAIN_STAGES.length)+'<span class="summary-label" style="margin:0;">クリア済み</span></div>'
+    +     '<div class="summary-card"><p class="summary-label">合計得点</p><p class="summary-value" id="totalScoreValue">0</p></div>'
+    +   '</div>'
+    +   '<div id="stageList">'+mainRows+'</div>'
+    +   '<div style="margin-top:24px;"></div>'
+    +   '<div id="bonusList">'+bonusRows+'</div>'
+    + '</div>';
+
+  app.querySelectorAll('.stage-row').forEach(function(row){
+    var id = row.dataset.stage;
+    if(!id) return;
+    row.addEventListener('click', function(){ renderStage(id); });
+  });
+
+  var totalEl = document.getElementById('totalScoreValue');
+  if(lastDisplayedTotal===null){
+    totalEl.textContent = totalScore;
+    lastDisplayedTotal = totalScore;
+  } else if(totalScore!==lastDisplayedTotal){
+    animateCountUp(totalEl, lastDisplayedTotal, totalScore, 800);
+    lastDisplayedTotal = totalScore;
+  } else {
+    totalEl.textContent = totalScore;
+  }
+
+  if(newlyUnlocked.length>0){
+    showUnlockCelebration(newlyUnlocked[0]);
+  }
+}
+
+var INIT_FNS = {};
+
+function renderStage(id){
+  var stage = ALL_STAGES.filter(function(s){ return s.id===id; })[0];
+  app.innerHTML = ''
+    + '<div class="app-header"><button class="back-btn" id="backBtn" aria-label="ホームに戻る">←</button>'+stage.name+'</div>'
+    + '<div class="screen" id="stageContainer"></div>';
+  document.getElementById('backBtn').addEventListener('click', renderHome);
+  var container = document.getElementById('stageContainer');
+  INIT_FNS[id](container, function(finalScore){
+    var progress = loadProgress();
+    if(finalScore > progress[id]){
+      progress[id] = finalScore;
+      saveProgress(progress);
+    }
+  });
+}
+
+function makeQuizRunner(container, cfg){
+  container.innerHTML = ''
+    + '<div class="stat-bar"><span>段 <b id="qLevel">1</b></span><span>得点 <b id="qScore">0</b></span><span id="qLives"></span></div>'
+    + '<div class="score-track"><div class="score-fill" id="qScoreFill"></div></div>'
+    + '<div id="qExtra"></div>'
+    + '<div class="paper-card" id="qPromptCard"><p id="qPrompt" style="margin:0;font-size:19px;font-weight:500;"></p></div>'
+    + '<p id="qHint" class="hint-text"></p>'
+    + '<div class="timer-track"><div class="timer-fill" id="qTimer"></div></div>'
+    + '<div class="option-grid" id="qOptions"></div>'
+    + '<p id="qFeedback" class="feedback-text"></p>'
+    + '<button class="btn-primary" id="qNext" style="display:none;width:100%;margin-bottom:8px;">次へ</button>'
+    + (cfg.moreText ? '<p><a href="#" id="qMore" class="more-link">'+cfg.moreText+'</a></p>' : '')
+    + '<div id="qGameOver" style="display:none;text-align:center;padding:28px 0;">'
+    +   '<p id="qFinal" style="font-family:\'Shippori Mincho\',serif;font-size:18px;font-weight:700;margin:0 0 16px;"></p>'
+    +   '<div id="qReview"></div>'
+    +   '<button class="btn-primary" id="qRestart">もう一度挑戦する</button>'
+    + '</div>';
+
+  var qLevel = container.querySelector('#qLevel');
+  var qScore = container.querySelector('#qScore');
+  var qScoreFill = container.querySelector('#qScoreFill');
+  var qLives = container.querySelector('#qLives');
+  var qReview = container.querySelector('#qReview');
+  var qExtra = container.querySelector('#qExtra');
+  var qPromptCard = container.querySelector('#qPromptCard');
+  var qPrompt = container.querySelector('#qPrompt');
+  var qHint = container.querySelector('#qHint');
+  var qTimerTrack = container.querySelector('.timer-track');
+  var qTimer = container.querySelector('#qTimer');
+  var qOptions = container.querySelector('#qOptions');
+  var qFeedback = container.querySelector('#qFeedback');
+  var qNext = container.querySelector('#qNext');
+  var qGameOver = container.querySelector('#qGameOver');
+  var qFinal = container.querySelector('#qFinal');
+  var qRestart = container.querySelector('#qRestart');
+  var qMore = container.querySelector('#qMore');
+  var gameBodyEls = [qExtra, qPromptCard, qHint, qTimerTrack, qOptions, qFeedback, qNext];
+
+  function getPool(lvl){
+    return cfg.dynamicItems ? cfg.dynamicItems(lvl) : cfg.items;
+  }
+
+  var level = 1, score = 0, lives = 3, idx = 0, missed = [];
+  var deck = shuffle(getPool(level));
+  var deckLevel = level;
+  var timePerItem = cfg.timeStart, timeLeft = timePerItem, timer = null, answered = false, currentRound = null, currentItem = null;
+
+  function updateStats(){
+    qLevel.textContent = level;
+    qScore.textContent = score;
+    qScoreFill.style.width = Math.min(100, (score/MAX_SCORE)*100) + '%';
+    qLives.innerHTML = heartsHtml(lives);
+    if(cfg.onExit) cfg.onExit(score);
+  }
+  function updateTimerBar(){
+    var pct = Math.max(0, (timeLeft/timePerItem)*100);
+    qTimer.style.width = pct+'%';
+  }
+  function setButtonsEnabled(en){
+    qOptions.querySelectorAll('button').forEach(function(b){ b.disabled = !en; });
+  }
+
+  function nextRound(){
+    if(cfg.dynamicItems && level!==deckLevel){
+      deck = shuffle(getPool(level));
+      idx = 0;
+      deckLevel = level;
+    } else if(idx>=deck.length){
+      deck = shuffle(getPool(level));
+      idx = 0;
+      deckLevel = level;
+    }
+    currentItem = deck[idx++];
+    currentRound = cfg.getRound(currentItem);
+    answered = false;
+    qNext.style.display = 'none';
+    qPrompt.innerHTML = currentRound.promptHtml;
+    qHint.textContent = currentRound.hintText || '';
+    qFeedback.textContent = '';
+    qFeedback.className = 'feedback-text';
+    qOptions.innerHTML = '';
+    shuffle(currentRound.options).forEach(function(opt){
+      var b = document.createElement('button');
+      b.className = 'option-btn';
+      b.textContent = opt.label;
+      b.dataset.correct = opt.correct ? '1' : '0';
+      b.addEventListener('click', function(){ handleAnswer(opt, b); });
+      qOptions.appendChild(b);
+    });
+    timeLeft = timePerItem;
+    updateTimerBar();
+    clearInterval(timer);
+    timer = setInterval(tick, 100);
+    setButtonsEnabled(true);
+  }
+
+  function tick(){
+    timeLeft -= 100;
+    updateTimerBar();
+    if(timeLeft<=0){ clearInterval(timer); handleAnswer(null, null); }
+  }
+
+  function handleAnswer(opt, btnEl){
+    if(answered) return;
+    answered = true;
+    clearInterval(timer);
+    setButtonsEnabled(false);
+    var correct = !!(opt && opt.correct);
+    qOptions.querySelectorAll('button').forEach(function(b){
+      if(b.dataset.correct==='1'){ b.classList.add('correct'); }
+      else if(b===btnEl){ b.classList.add('wrong'); }
+    });
+    if(correct){
+      score = Math.min(MAX_SCORE, score+10);
+      qFeedback.className = 'feedback-text success';
+      qFeedback.textContent = '正解。' + currentRound.note;
+      if(cfg.getId) removeMistake(cfg.getId(currentItem));
+    } else {
+      lives -= 1;
+      qFeedback.className = 'feedback-text danger';
+      qFeedback.textContent = (opt===null ? '時間切れ。' : '不正解。') + currentRound.note;
+      var correctOpt = currentRound.options.filter(function(o){ return o.correct; })[0];
+      missed.push({
+        q: currentRound.promptHtml,
+        a: correctOpt ? correctOpt.label : '',
+        note: currentRound.note
+      });
+      if(cfg.getId) recordMistake(cfg.getId(currentItem));
+    }
+    if(currentRound.onResolved) currentRound.onResolved(correct);
+    updateStats();
+    var cleared = score>=MAX_SCORE;
+    var goingToEnd = lives<=0 || cleared;
+    if(correct && !goingToEnd && score>0 && score%50===0){
+      level += 1;
+      timePerItem = Math.max(cfg.timeFloor, timePerItem-(cfg.timeStep||500));
+    }
+    qNext.textContent = goingToEnd ? '結果を見る' : '次へ';
+    qNext.style.display = 'block';
+    qNext.onclick = function(){
+      qNext.style.display = 'none';
+      if(goingToEnd){ endStage(cleared); } else { nextRound(); }
+    };
+  }
+
+  function endStage(cleared){
+    gameBodyEls.forEach(function(el){ el.style.display = 'none'; });
+    if(qMore) qMore.style.display = 'none';
+    qGameOver.style.display = 'block';
+    qFinal.textContent = cleared ? 'ステージクリア！ 得点 '+score : '結果 得点 '+score+' ・ 段 '+level;
+    if(missed.length===0){
+      qReview.innerHTML = '<p class="review-perfect">間違えた問題はありませんでした。</p>';
+    } else {
+      qReview.innerHTML = '<div class="review-list">' + missed.map(function(m){
+        return '<div class="review-item"><p class="review-q">'+m.q+'</p><p class="review-a">正解: '+m.a+'</p><p class="review-note">'+m.note+'</p></div>';
+      }).join('') + '</div>';
+    }
+  }
+
+  qRestart.addEventListener('click', function(){
+    score = 0; level = 1; lives = 3; timePerItem = cfg.timeStart; missed = [];
+    gameBodyEls.forEach(function(el){ el.style.display = ''; });
+    qNext.style.display = 'none';
+    if(qMore) qMore.style.display = '';
+    qGameOver.style.display = 'none';
+    deck = shuffle(getPool(level)); idx = 0; deckLevel = level;
+    updateStats();
+    nextRound();
+  });
+
+  if(qMore && cfg.moreAction){
+    qMore.addEventListener('click', function(e){ e.preventDefault(); cfg.moreAction(); });
+  }
+
+  updateStats();
+  nextRound();
+}
+
+/* ---------- Stage 1: 識別道場 ---------- */
+var STAGE1_ITEMS = [
+  {pre:"花咲き", word:"ぬ", post:"。", cat:"完了", note:"連用形に接続する「ぬ」は完了の意味。"},
+  {pre:"言は", word:"ぬ", post:"ことなり。", cat:"打消", note:"未然形に接続する「ぬ」は打消の意味。"},
+  {pre:"昔、竹取の翁といふ者あり", word:"けり", post:"。", cat:"過去", note:"人から伝え聞いた過去を表す。"},
+  {pre:"去年、都に上り", word:"き", post:"。", cat:"過去", note:"自分が直接体験した過去を表す。"},
+  {pre:"文を書き", word:"つ", post:"。", cat:"完了", note:"連用形に接続する「つ」は完了の意味。"},
+  {pre:"花は散り", word:"たり", post:"。", cat:"完了", note:"連用形に接続する「たり」は完了・存続の意味。"},
+  {pre:"鳥は飛べ", word:"り", post:"。", cat:"完了", note:"四段動詞の已然形に接続する「り」は完了・存続の意味。"},
+  {pre:"何も知ら", word:"ず", post:"。", cat:"打消", note:"未然形に接続する「ず」は打消の意味。"},
+  {pre:"行か", word:"む", post:"と思ふ。", cat:"推量", note:"未然形に接続する「む」は推量・意志の意味。"},
+  {pre:"今ごろ、雨降る", word:"らむ", post:"。", cat:"推量", note:"終止形に接続し、現在の出来事についての推量を表す。"},
+  {pre:"昔はいかにあり", word:"けむ", post:"。", cat:"推量", note:"連用形に接続し、過去の出来事についての推量を表す。"},
+  {pre:"明日は雨降る", word:"べし", post:"。", cat:"推量", note:"終止形に接続し、推量・当然の意味を表す。"},
+  {pre:"命あらば、また会は", word:"まし", post:"。", cat:"推量", note:"未然形に接続する「まし」は反実仮想の意味を表す。"},
+  {pre:"風吹き", word:"ぬ", post:"。", cat:"完了", note:"連用形に接続する「ぬ」は完了の意味。"},
+  {pre:"花咲か", word:"ぬ", post:"里なり。", cat:"打消", note:"未然形に接続する「ぬ」は打消の意味。"},
+  {pre:"昔、女あり", word:"けり", post:"。", cat:"過去", note:"過去の伝聞を表す。"}
+];
+
+function initStage1(container, onExit){
+  makeQuizRunner(container, {
+    items: STAGE1_ITEMS,
+    timeStart: 6000,
+    timeFloor: 2000,
+    timeStep: 500,
+    pauseMs: 1300,
+    onExit: onExit,
+    getId: function(item){ return 's1_' + STAGE1_ITEMS.indexOf(item); },
+    getRound: function(item){
+      var cats = ["過去","完了","打消","推量"];
+      return {
+        promptHtml: item.pre + '<mark class="hl">' + item.word + '</mark>' + item.post,
+        hintText: '',
+        options: cats.map(function(c){ return {label:c, correct:c===item.cat}; }),
+        note: item.note
+      };
+    }
+  });
+}
+
+/* ---------- Stage 2: 接続の間 ---------- */
+var STAGE2_HARD_ITEMS = [
+  {base:"見", form:"未然形", correct:"る", distractors:["き","べし","なり"], note:"「る」は未然形接続。受身・尊敬・自発・可能の意味を表す。"},
+  {base:"咲か", form:"未然形", correct:"ず", distractors:["たり","らむ","ごとし"], note:"「ず」は未然形接続の打消の助動詞。"},
+  {base:"見", form:"未然形", correct:"まし", distractors:["たり","べし","なり"], note:"「まし」は未然形接続の反実仮想の助動詞。"},
+  {base:"咲き", form:"連用形", correct:"き", distractors:["る","べし","なり"], note:"「き」は連用形接続の過去の助動詞。"},
+  {base:"咲き", form:"連用形", correct:"たり", distractors:["む","まじ","ごとし"], note:"「たり」は連用形接続の完了・存続の助動詞。"},
+  {base:"咲き", form:"連用形", correct:"ぬ", distractors:["らむ","まほし","ごとし"], note:"連用形接続の「ぬ」は完了の意味（未然形につく「ぬ」は打消）。"},
+  {base:"過ぐ", form:"終止形", correct:"べし", distractors:["ず","き","なり"], note:"「べし」は終止形接続（ラ変型の語には連体形接続）。"},
+  {base:"過ぐ", form:"終止形", correct:"らむ", distractors:["る","たり","ごとし"], note:"「らむ」は終止形接続の現在推量の助動詞。"},
+  {base:"過ぐる", form:"連体形", correct:"なり", distractors:["む","つ","べし"], note:"断定の「なり」は連体形や体言に接続する。"},
+  {base:"過ぐる", form:"連体形", correct:"ごとし", distractors:["ず","けり","まじ"], note:"比況の「ごとし」は連体形や「体言＋の」に接続する。"}
+];
+
+function buildStage2EasyItems(){
+  var words = STAGE3_WORDS.filter(function(w){
+    return ["る","ず","べし","ぬ","けり"].indexOf(w.word)!==-1;
+  });
+  var baseByForm = {未然形:"見", 連用形:"咲き", 終止形:"過ぐ", 連体形:"過ぐる"};
+  var items = [];
+  words.forEach(function(w){
+    var uniqueVals = [];
+    FORM_ORDER.forEach(function(f){
+      var v = w.values[f];
+      if(v!==null && uniqueVals.indexOf(v)===-1) uniqueVals.push(v);
+    });
+    Object.keys(baseByForm).forEach(function(f){
+      var v = w.values[f];
+      if(v===null) return;
+      items.push({
+        base: baseByForm[f],
+        form: f,
+        correct: v,
+        distractors: uniqueVals.filter(function(x){ return x!==v; }),
+        note: w.notes[f] + '（「'+w.word+'」自身の活用形の中から選ぶ）'
+      });
+    });
+  });
+  return items;
+}
+
+function initStage2(container, onExit){
+  var easyItems = buildStage2EasyItems();
+  var mixedItems = easyItems.concat(STAGE2_HARD_ITEMS);
+  makeQuizRunner(container, {
+    items: easyItems,
+    dynamicItems: function(level){
+      if(level<=1) return easyItems;
+      if(level===2) return mixedItems;
+      return STAGE2_HARD_ITEMS;
+    },
+    timeStart: 8000,
+    timeFloor: 3000,
+    timeStep: 500,
+    pauseMs: 1500,
+    onExit: onExit,
+    getId: function(item){
+      var i = easyItems.indexOf(item);
+      if(i!==-1) return 's2easy_' + i;
+      i = STAGE2_HARD_ITEMS.indexOf(item);
+      return 's2hard_' + i;
+    },
+    getRound: function(item){
+      return {
+        promptHtml: item.base + '＋<mark class="hl">＿＿</mark>',
+        hintText: item.base + 'は' + item.form,
+        options: [item.correct].concat(item.distractors).map(function(o){ return {label:o, correct:o===item.correct}; }),
+        note: item.note
+      };
+    }
+  });
+}
+
+/* ---------- Stage 3: 活用表の蔵 ---------- */
+var FORM_ORDER = ["未然形","連用形","終止形","連体形","已然形","命令形"];
+var STAGE3_WORDS = [
+  {word:"る", type:"下二段型", values:{未然形:"れ",連用形:"れ",終止形:"る",連体形:"る",已然形:"るれ",命令形:"れよ"},
+   notes:{未然形:"「る」の未然形は「れ」（下二段型活用）。",連用形:"「る」の連用形も未然形と同じ「れ」。",終止形:"「る」の終止形は「る」。",連体形:"「る」の連体形も終止形と同じ「る」。",已然形:"「る」の已然形は「るれ」。",命令形:"「る」の命令形は「れよ」。"}},
+  {word:"き", type:"特殊型", values:{未然形:"せ",連用形:null,終止形:"き",連体形:"し",已然形:"しか",命令形:null},
+   notes:{未然形:"「き」の未然形は「せ」。「せば」の形でよく使われる。",終止形:"「き」の終止形はそのまま「き」。",連体形:"「き」の連体形は「し」。「〜し時」の形で覚える。",已然形:"「き」の已然形は「しか」。「こそ〜しか」の係り結びで使われる。"}},
+  {word:"けり", type:"ラ変型", values:{未然形:"けら",連用形:"けり",終止形:"けり",連体形:"ける",已然形:"けれ",命令形:null},
+   notes:{未然形:"「けり」の未然形は「けら」。",連用形:"「けり」の連用形は終止形と同じ「けり」。",終止形:"「けり」の終止形は「けり」。",連体形:"「けり」の連体形は「ける」。",已然形:"「けり」の已然形は「けれ」。"}},
+  {word:"べし", type:"形容詞型", values:{未然形:"べく",連用形:"べく",終止形:"べし",連体形:"べき",已然形:"べけれ",命令形:null},
+   notes:{未然形:"「べし」の未然形は「べく」。",連用形:"「べし」の連用形も未然形と同じ「べく」。",終止形:"「べし」の終止形はそのまま「べし」。",連体形:"「べし」の連体形は「べき」。",已然形:"「べし」の已然形は「べけれ」。"}},
+  {word:"ぬ", type:"ナ変型", values:{未然形:"な",連用形:"に",終止形:"ぬ",連体形:"ぬる",已然形:"ぬれ",命令形:"ね"},
+   notes:{未然形:"「ぬ」の未然形は「な」。「なむ」の形でもよく使われる。",連用形:"「ぬ」の連用形は「に」。「にき」「にけり」の形で使われる。",終止形:"「ぬ」の終止形はそのまま「ぬ」。",連体形:"「ぬ」の連体形は「ぬる」。",已然形:"「ぬ」の已然形は「ぬれ」。",命令形:"「ぬ」の命令形は「ね」。"}},
+  {word:"ず", type:"特殊型", values:{未然形:"ざら",連用形:"ざり",終止形:"ず",連体形:"ぬ",已然形:"ね",命令形:"ざれ"},
+   notes:{未然形:"「ず」の未然形は「ざら」（ざり活用）。",連用形:"「ず」の連用形は「ざり」。",終止形:"「ず」の終止形は「ず」。",連体形:"「ず」の連体形は「ぬ」。打消の「ぬ」と同じ形になる点に注意。",已然形:"「ず」の已然形は「ね」。",命令形:"「ず」の命令形は「ざれ」。"}}
+];
+
+function initStage3(container, onExit){
+  container.innerHTML = ''
+    + '<div class="stat-bar"><span>段 <b id="qLevel">1</b></span><span>得点 <b id="qScore">0</b></span><span id="qLives"></span></div>'
+    + '<div class="score-track"><div class="score-fill" id="qScoreFill"></div></div>'
+    + '<p id="wordHeading" style="font-size:13px;color:var(--ink-soft);text-align:center;margin:0 0 4px;"></p>'
+    + '<p style="font-size:13px;color:var(--vermillion);text-align:center;margin:0 0 10px;">表の空欄に入る形をタップしよう</p>'
+    + '<div class="table-panel" id="table"></div>'
+    + '<div class="timer-track"><div class="timer-fill" id="qTimer"></div></div>'
+    + '<div class="option-grid" id="qOptions"></div>'
+    + '<p id="qFeedback" class="feedback-text"></p>'
+    + '<button class="btn-primary" id="qNext" style="display:none;width:100%;margin-bottom:8px;">次へ</button>'
+    + '<div id="qGameOver" style="display:none;text-align:center;padding:28px 0;">'
+    +   '<p id="qFinal" style="font-family:\'Shippori Mincho\',serif;font-size:18px;font-weight:700;margin:0 0 16px;"></p>'
+    +   '<div id="qReview"></div>'
+    +   '<button class="btn-primary" id="qRestart">もう一度挑戦する</button>'
+    + '</div>';
+
+  var qLevel = container.querySelector('#qLevel');
+  var qScore = container.querySelector('#qScore');
+  var qScoreFill = container.querySelector('#qScoreFill');
+  var qLives = container.querySelector('#qLives');
+  var qReview = container.querySelector('#qReview');
+  var wordHeading = container.querySelector('#wordHeading');
+  var tableEl = container.querySelector('#table');
+  var qTimerTrack = container.querySelector('.timer-track');
+  var qTimer = container.querySelector('#qTimer');
+  var qOptions = container.querySelector('#qOptions');
+  var qFeedback = container.querySelector('#qFeedback');
+  var qNext = container.querySelector('#qNext');
+  var qGameOver = container.querySelector('#qGameOver');
+  var qFinal = container.querySelector('#qFinal');
+  var qRestart = container.querySelector('#qRestart');
+  var gameBodyEls = [wordHeading, tableEl, qTimerTrack, qOptions, qFeedback, qNext];
+
+  var wordsOrder = shuffle(STAGE3_WORDS);
+  var wordIdx = 0, formPointer = 0, askableForms = [], score = 0, level = 1, lives = 3, missed = [];
+  var timePerItem = 8000, timeLeft = timePerItem, timer = null, answered = false, currentWord = null, currentForm = null;
+
+  function updateStats(){
+    qLevel.textContent = level; qScore.textContent = score;
+    qScoreFill.style.width = Math.min(100, (score/MAX_SCORE)*100) + '%';
+    qLives.innerHTML = heartsHtml(lives);
+    onExit(score);
+  }
+  function updateTimerBar(){ var pct = Math.max(0,(timeLeft/timePerItem)*100); qTimer.style.width = pct+'%'; }
+  function setButtonsEnabled(en){ qOptions.querySelectorAll('button').forEach(function(b){ b.disabled = !en; }); }
+
+  function renderTable(){
+    var rows = FORM_ORDER.map(function(f){
+      var v = currentWord.values[f];
+      var display = v===null ? '－' : '？';
+      return '<div class="table-row" data-form="'+f+'"><span class="form-label">'+f+'</span><span class="val">'+display+'</span></div>';
+    }).join('');
+    tableEl.innerHTML = rows;
+  }
+  function highlightRow(form){
+    tableEl.querySelectorAll('.table-row').forEach(function(r){
+      r.classList.toggle('active', r.dataset.form===form);
+    });
+  }
+  function setRowResult(form, text, ok){
+    var rowDiv = tableEl.querySelector('.table-row[data-form="'+form+'"]');
+    rowDiv.classList.remove('active');
+    var val = rowDiv.querySelector('.val');
+    val.textContent = text;
+    val.style.color = ok ? 'var(--bamboo)' : 'var(--danger)';
+  }
+
+  function startWord(){
+    currentWord = wordsOrder[wordIdx];
+    wordHeading.textContent = '「'+currentWord.word+'」（'+currentWord.type+'）の活用';
+    askableForms = shuffle(FORM_ORDER.filter(function(f){ return currentWord.values[f]!==null; }));
+    formPointer = 0;
+    renderTable();
+    nextForm();
+  }
+
+  function nextForm(){
+    if(formPointer>=askableForms.length){
+      qFeedback.className = 'feedback-text';
+      qFeedback.textContent = '「'+currentWord.word+'」の活用表が完成しました。';
+      qOptions.innerHTML = '';
+      qNext.textContent = '次の助動詞へ';
+      qNext.style.display = 'block';
+      qNext.onclick = function(){
+        qNext.style.display = 'none';
+        wordIdx = (wordIdx+1) % wordsOrder.length;
+        startWord();
+      };
+      return;
+    }
+    currentForm = askableForms[formPointer];
+    answered = false;
+    qNext.style.display = 'none';
+    highlightRow(currentForm);
+    qFeedback.textContent = '';
+    qFeedback.className = 'feedback-text';
+    var uniqueVals = [];
+    FORM_ORDER.forEach(function(f){
+      var v = currentWord.values[f];
+      if(v!==null && uniqueVals.indexOf(v)===-1) uniqueVals.push(v);
+    });
+    qOptions.innerHTML = '';
+    shuffle(uniqueVals).forEach(function(opt){
+      var b = document.createElement('button');
+      b.className = 'option-btn';
+      b.textContent = opt;
+      b.dataset.value = opt;
+      b.addEventListener('click', function(){ handleAnswer(opt, b); });
+      qOptions.appendChild(b);
+    });
+    timeLeft = timePerItem;
+    updateTimerBar();
+    clearInterval(timer);
+    timer = setInterval(tick, 100);
+    setButtonsEnabled(true);
+  }
+
+  function tick(){
+    timeLeft -= 100;
+    updateTimerBar();
+    if(timeLeft<=0){ clearInterval(timer); handleAnswer(null, null); }
+  }
+
+  function handleAnswer(selected, btnEl){
+    if(answered) return;
+    answered = true;
+    clearInterval(timer);
+    setButtonsEnabled(false);
+    var correctVal = currentWord.values[currentForm];
+    var correct = selected===correctVal;
+    qOptions.querySelectorAll('button').forEach(function(b){
+      if(b.dataset.value===correctVal){ b.classList.add('correct'); }
+      else if(b===btnEl){ b.classList.add('wrong'); }
+    });
+    setRowResult(currentForm, correctVal, correct);
+    var mistakeId = 's3_' + currentWord.word + '_' + currentForm;
+    if(correct){
+      score = Math.min(MAX_SCORE, score+10);
+      qFeedback.className = 'feedback-text success';
+      qFeedback.textContent = '正解。' + currentWord.notes[currentForm];
+      removeMistake(mistakeId);
+    } else {
+      lives -= 1;
+      qFeedback.className = 'feedback-text danger';
+      qFeedback.textContent = (selected===null?'時間切れ。':'不正解。') + '正解は「'+correctVal+'」。' + currentWord.notes[currentForm];
+      missed.push({
+        q: '「'+currentWord.word+'」の<mark class="hl">'+currentForm+'</mark>',
+        a: correctVal,
+        note: currentWord.notes[currentForm]
+      });
+      recordMistake(mistakeId);
+    }
+    updateStats();
+    var cleared = score>=MAX_SCORE;
+    var goingToEnd = lives<=0 || cleared;
+    if(correct && !goingToEnd && score>0 && score%50===0){
+      level += 1;
+      timePerItem = Math.max(4000, timePerItem-500);
+    }
+    formPointer += 1;
+    qNext.textContent = goingToEnd ? '結果を見る' : '次へ';
+    qNext.style.display = 'block';
+    qNext.onclick = function(){
+      qNext.style.display = 'none';
+      if(goingToEnd){ endStage(cleared); } else { nextForm(); }
+    };
+  }
+
+  function endStage(cleared){
+    gameBodyEls.forEach(function(el){ el.style.display = 'none'; });
+    qGameOver.style.display = 'block';
+    qFinal.textContent = cleared ? 'ステージクリア！ 得点 '+score : '結果 得点 '+score+' ・ 段 '+level;
+    if(missed.length===0){
+      qReview.innerHTML = '<p class="review-perfect">間違えた問題はありませんでした。</p>';
+    } else {
+      qReview.innerHTML = '<div class="review-list">' + missed.map(function(m){
+        return '<div class="review-item"><p class="review-q">'+m.q+'</p><p class="review-a">正解: '+m.a+'</p><p class="review-note">'+m.note+'</p></div>';
+      }).join('') + '</div>';
+    }
+  }
+
+  qRestart.addEventListener('click', function(){
+    score = 0; level = 1; lives = 3; timePerItem = 8000; wordIdx = 0; missed = [];
+    wordsOrder = shuffle(STAGE3_WORDS);
+    gameBodyEls.forEach(function(el){ el.style.display = ''; });
+    qNext.style.display = 'none';
+    qGameOver.style.display = 'none';
+    updateStats();
+    startWord();
+  });
+
+  updateStats();
+  startWord();
+}
+
+/* ---------- Stage 4: 一文組み立て橋 ---------- */
+var STAGE4_ITEMS = [
+  {pieces:["言は","ざり","き"], meaning:"言わなかった", explain:"「言は」は未然形。「ざり」（ず）は未然形接続で、それ自体は連用形の働きをする。「き」は連用形接続の過去。よって 言は→ざり→き の順。"},
+  {pieces:["咲き","に","けり"], meaning:"咲いてしまったなあ", explain:"「咲き」は連用形。「に」（ぬ）は連用形接続の完了。「けり」も連用形接続で過去の詠嘆を表す。よって 咲き→に→けり の順。"},
+  {pieces:["見","られ","ず"], meaning:"見られない", explain:"「見」は未然形。「られ」（らる）は未然形接続で、それ自体も未然形の働きをする。「ず」も未然形接続の打消。よって 見→られ→ず の順。"},
+  {pieces:["泣か","ざり","けり"], meaning:"泣かなかったなあ", explain:"「泣か」は未然形。「ざり」は未然形接続で連用形の働きをする。「けり」は連用形接続の過去。よって 泣か→ざり→けり の順。"},
+  {pieces:["思は","れ","たり"], meaning:"思われている", explain:"「思は」は未然形。「れ」（る）は未然形接続で連用形の働きをする。「たり」は連用形接続の完了・存続。よって 思は→れ→たり の順。"},
+  {pieces:["泣き","つ","べし"], meaning:"きっと泣くにちがいない", explain:"「泣き」は連用形。「つ」は連用形接続で終止形の働きをする（強意）。「べし」は終止形接続の推量。よって 泣き→つ→べし の順。"},
+  {pieces:["咲か","れ","けり"], meaning:"自然と咲いたなあ", explain:"「咲か」は未然形。「れ」（る）は未然形接続で連用形の働きをする。「けり」は連用形接続の過去。よって 咲か→れ→けり の順。"},
+  {pieces:["起き","に","き"], meaning:"起きてしまった", explain:"「起き」は連用形。「に」（ぬ）は連用形接続の完了で連用形の働きをする。「き」は連用形接続の過去。よって 起き→に→き の順。"}
+];
+
+function initStage4(container, onExit){
+  container.innerHTML = ''
+    + '<div class="stat-bar"><span>段 <b id="qLevel">1</b></span><span>得点 <b id="qScore">0</b></span><span id="qLives"></span></div>'
+    + '<div class="score-track"><div class="score-fill" id="qScoreFill"></div></div>'
+    + '<p style="font-size:13px;color:var(--ink-soft);text-align:center;margin:0 0 10px;">正しい接続順にピースをタップして一文を組み立てよう</p>'
+    + '<div class="assembly-row" id="assembly"></div>'
+    + '<p style="text-align:center;margin:0 0 12px;"><a href="#" id="undoBtn" class="more-link">1つ戻す</a></p>'
+    + '<div class="timer-track"><div class="timer-fill" id="qTimer"></div></div>'
+    + '<div class="option-grid" id="pool"></div>'
+    + '<p id="qFeedback" class="feedback-text" style="min-height:70px;"></p>'
+    + '<button class="btn-primary" id="qNext" style="display:none;width:100%;margin-bottom:8px;">次へ</button>'
+    + '<div id="qGameOver" style="display:none;text-align:center;padding:28px 0;">'
+    +   '<p id="qFinal" style="font-family:\'Shippori Mincho\',serif;font-size:18px;font-weight:700;margin:0 0 16px;"></p>'
+    +   '<div id="qReview"></div>'
+    +   '<button class="btn-primary" id="qRestart">もう一度挑戦する</button>'
+    + '</div>';
+
+  var qLevel = container.querySelector('#qLevel');
+  var qScore = container.querySelector('#qScore');
+  var qScoreFill = container.querySelector('#qScoreFill');
+  var qLives = container.querySelector('#qLives');
+  var qReview = container.querySelector('#qReview');
+  var assembly = container.querySelector('#assembly');
+  var pool = container.querySelector('#pool');
+  var qTimerTrack = container.querySelector('.timer-track');
+  var qTimer = container.querySelector('#qTimer');
+  var qFeedback = container.querySelector('#qFeedback');
+  var qNext = container.querySelector('#qNext');
+  var undoBtn = container.querySelector('#undoBtn');
+  var qGameOver = container.querySelector('#qGameOver');
+  var qFinal = container.querySelector('#qFinal');
+  var qRestart = container.querySelector('#qRestart');
+  var gameBodyEls = [assembly, undoBtn.parentElement, qTimerTrack, pool, qFeedback, qNext];
+
+  var deck = [], idx = 0, score = 0, level = 1, lives = 3, missed = [];
+  var timePerItem = 12000, timeLeft = timePerItem, timer = null, answered = false, currentItem = null, placedOrder = [], poolOrder = [];
+
+  function updateStats(){
+    qLevel.textContent = level; qScore.textContent = score;
+    qScoreFill.style.width = Math.min(100, (score/MAX_SCORE)*100) + '%';
+    qLives.innerHTML = heartsHtml(lives);
+    onExit(score);
+  }
+  function updateTimerBar(){ var pct = Math.max(0,(timeLeft/timePerItem)*100); qTimer.style.width = pct+'%'; }
+
+  function renderAssembly(){
+    assembly.innerHTML = '';
+    for(var i=0;i<3;i++){
+      var box = document.createElement('div');
+      box.className = 'assembly-box';
+      if(placedOrder[i]!==undefined){ box.textContent = currentItem.pieces[placedOrder[i]]; }
+      assembly.appendChild(box);
+    }
+  }
+  function renderPool(){
+    pool.innerHTML = '';
+    poolOrder.forEach(function(pieceIdx){
+      var used = placedOrder.indexOf(pieceIdx)!==-1;
+      var b = document.createElement('button');
+      b.className = 'option-btn';
+      b.textContent = currentItem.pieces[pieceIdx];
+      if(used){
+        b.disabled = true;
+        b.style.opacity = '0.35';
+      }
+      b.addEventListener('click', function(){ placePiece(pieceIdx); });
+      pool.appendChild(b);
+    });
+  }
+  function placePiece(pieceIdx){
+    if(answered || placedOrder.length>=3 || placedOrder.indexOf(pieceIdx)!==-1) return;
+    placedOrder.push(pieceIdx);
+    renderAssembly(); renderPool();
+    if(placedOrder.length===3){ handleAnswer(); }
+  }
+  function undoLast(){
+    if(answered || placedOrder.length===0) return;
+    placedOrder.pop();
+    renderAssembly(); renderPool();
+  }
+
+  function nextItem(){
+    if(idx>=deck.length){ deck = shuffle(STAGE4_ITEMS); idx = 0; }
+    currentItem = deck[idx++];
+    answered = false;
+    placedOrder = [];
+    poolOrder = shuffle([0,1,2]);
+    renderAssembly(); renderPool();
+    qFeedback.textContent = ''; qFeedback.className = 'feedback-text';
+    qNext.style.display = 'none';
+    timeLeft = timePerItem;
+    updateTimerBar();
+    clearInterval(timer);
+    timer = setInterval(tick, 100);
+  }
+
+  function tick(){
+    timeLeft -= 100;
+    updateTimerBar();
+    if(timeLeft<=0){ clearInterval(timer); handleAnswer(true); }
+  }
+
+  function handleAnswer(timedOut){
+    if(answered) return;
+    answered = true;
+    clearInterval(timer);
+    var correct = !timedOut && placedOrder.join(',')==='0,1,2';
+    if(!correct){
+      placedOrder = [0,1,2];
+      renderAssembly(); renderPool();
+    }
+    if(correct){
+      score = Math.min(MAX_SCORE, score+10);
+      qFeedback.className = 'feedback-text success';
+      qFeedback.textContent = '正解。「'+currentItem.pieces.join('')+'」＝'+currentItem.meaning+'。'+currentItem.explain;
+      removeMistake('s4_' + STAGE4_ITEMS.indexOf(currentItem));
+    } else {
+      lives -= 1;
+      qFeedback.className = 'feedback-text danger';
+      qFeedback.textContent = (timedOut?'時間切れ。':'順番が違う。')+'正しくは「'+currentItem.pieces.join('')+'」＝'+currentItem.meaning+'。'+currentItem.explain;
+      missed.push({
+        q: '「'+currentItem.meaning+'」という意味になる組み立て',
+        a: currentItem.pieces.join(''),
+        note: currentItem.explain
+      });
+      recordMistake('s4_' + STAGE4_ITEMS.indexOf(currentItem));
+    }
+    updateStats();
+    var cleared = score>=MAX_SCORE;
+    var goingToEnd = lives<=0 || cleared;
+    if(correct && !goingToEnd && score>0 && score%50===0){
+      level += 1;
+      timePerItem = Math.max(6000, timePerItem-1000);
+    }
+    qNext.textContent = goingToEnd ? '結果を見る' : '次へ';
+    qNext.style.display = 'block';
+    qNext.onclick = function(){
+      qNext.style.display = 'none';
+      if(goingToEnd){ endStage(cleared); } else { nextItem(); }
+    };
+  }
+
+  function endStage(cleared){
+    gameBodyEls.forEach(function(el){ el.style.display = 'none'; });
+    qGameOver.style.display = 'block';
+    qFinal.textContent = cleared ? 'ステージクリア！ 得点 '+score : '結果 得点 '+score+' ・ 段 '+level;
+    if(missed.length===0){
+      qReview.innerHTML = '<p class="review-perfect">間違えた問題はありませんでした。</p>';
+    } else {
+      qReview.innerHTML = '<div class="review-list">' + missed.map(function(m){
+        return '<div class="review-item"><p class="review-q">'+m.q+'</p><p class="review-a">正解: '+m.a+'</p><p class="review-note">'+m.note+'</p></div>';
+      }).join('') + '</div>';
+    }
+  }
+
+  undoBtn.addEventListener('click', function(e){ e.preventDefault(); undoLast(); });
+  qRestart.addEventListener('click', function(){
+    score = 0; level = 1; lives = 3; timePerItem = 12000; missed = [];
+    gameBodyEls.forEach(function(el){ el.style.display = ''; });
+    qNext.style.display = 'none';
+    qGameOver.style.display = 'none';
+    deck = shuffle(STAGE4_ITEMS); idx = 0;
+    updateStats();
+    nextItem();
+  });
+
+  deck = shuffle(STAGE4_ITEMS); idx = 0;
+  updateStats();
+  nextItem();
+}
+
+/* ---------- Stage 5: 文完成の巻物 ---------- */
+var STAGE5_ITEMS = [
+  {pre:"花咲き", post:"。", meaning:"完了の意味になるように", correct:"ぬ", options:["ぬ","き","べし","なり"], note:"「咲き」は連用形。完了は連用形接続の「ぬ」。「き」は同じ連用形接続でも意味は過去。「べし」は終止形接続、「なり」は連体形・体言接続で、そもそも形が合わない。"},
+  {pre:"今ごろ、雨降る", post:"。", meaning:"現在の推量の意味になるように", correct:"らむ", options:["らむ","けむ","なり","たり"], note:"「降る」は終止形。現在推量は終止形接続の「らむ」。「けむ」は意味は推量だが過去のことに使う。「なり」「たり」は接続の形が合わない。"},
+  {pre:"言は", post:"。", meaning:"打消の意味になるように", correct:"ず", options:["ず","じ","む","つ"], note:"「言は」は未然形。打消は未然形接続の「ず」。「じ」は打消推量、「む」は推量・意志で意味が異なる。「つ」は連用形接続で形が合わない。"},
+  {pre:"花咲か", post:"里なり。", meaning:"打消の意味になるように", correct:"ぬ", options:["ぬ","たり","けり","べし"], note:"「咲か」は未然形。未然形接続の「ぬ」は打消の意味になる（連用形接続の「ぬ」なら完了）。「たり」「けり」は連用形接続、「べし」は終止形接続で形が合わない。"},
+  {pre:"昔、女あり", post:"。", meaning:"過去の伝聞の意味になるように", correct:"けり", options:["けり","き","たり","べし"], note:"伝え聞いた過去は「けり」。「き」は自分が直接体験した過去で意味が異なる。「たり」は完了・存続、「べし」は終止形接続で形も意味も合わない。"},
+  {pre:"命あらば、また会は", post:"。", meaning:"反実仮想の意味になるように", correct:"まし", options:["まし","む","ざり","たり"], note:"未然形接続で反実仮想を表すのは「まし」。「む」は推量・意志で意味が異なる。「ざり」は打消、「たり」は連用形接続で形も意味も合わない。"},
+  {pre:"明日は雨降る", post:"。", meaning:"推量・当然の意味になるように", correct:"べし", options:["べし","らむ","けむ","なり"], note:"終止形接続で推量・当然を表すのは「べし」。「らむ」は現在推量、「けむ」は過去推量で意味が異なる。「なり」は連体形・体言接続で形が合わない。"},
+  {pre:"風吹き", post:"。", meaning:"完了の意味になるように", correct:"ぬ", options:["ぬ","む","べし","なり"], note:"「吹き」は連用形。完了は連用形接続の「ぬ」。「む」は未然形接続、「べし」は終止形接続、「なり」は連体形・体言接続で、いずれも形が合わない。"}
+];
+
+function initStage5(container, onExit){
+  makeQuizRunner(container, {
+    items: STAGE5_ITEMS,
+    timeStart: 8000,
+    timeFloor: 4000,
+    timeStep: 500,
+    pauseMs: 1800,
+    onExit: onExit,
+    getId: function(item){ return 's5_' + STAGE5_ITEMS.indexOf(item); },
+    getRound: function(item){
+      return {
+        promptHtml: item.pre + '<mark class="hl">＿</mark>' + item.post,
+        hintText: '→ ' + item.meaning,
+        options: shuffle(item.options).map(function(o){ return {label:o, correct:o===item.correct}; }),
+        note: item.note
+      };
+    }
+  });
+}
+
+/* ---------- Stage 7: 活用表クロスワード ---------- */
+var CROSSWORD_LAYOUT = [
+  [{r:0,c:0,ch:"べ",num:1},{r:0,c:1,block:true},{r:0,c:2,block:true},{r:0,c:3,ch:"ぬ",num:2},{r:0,c:4,ch:"れ"},{r:0,c:5,block:true},{r:0,c:6,ch:"る",num:3},{r:0,c:7,ch:"れ",num:4}],
+  [{r:1,c:0,ch:"け",num:5},{r:1,c:1,ch:"れ"},{r:1,c:2,block:true},{r:1,c:3,ch:"る"},{r:1,c:4,block:true},{r:1,c:5,block:true},{r:1,c:6,block:true},{r:1,c:7,ch:"よ"}],
+  [{r:2,c:0,ch:"れ"},{r:2,c:1,block:true},{r:2,c:2,block:true},{r:2,c:3,block:true},{r:2,c:4,block:true},{r:2,c:5,block:true},{r:2,c:6,block:true},{r:2,c:7,block:true}]
+];
+
+function initStage7(container, onExit){
+  container.innerHTML = ''
+    + '<p style="font-size:13px;color:var(--vermillion);text-align:center;margin:0 0 12px;">マスに読みを1文字ずつ入力して、ヒントの活用形を完成させよう</p>'
+    + '<div id="cwGrid" style="display:grid;grid-template-columns:repeat(8,32px);grid-template-rows:repeat(3,32px);gap:2px;justify-content:center;margin-bottom:16px;"></div>'
+    + '<div style="display:flex;gap:8px;margin-bottom:16px;">'
+    +   '<button class="btn-primary" id="cwCheck" style="flex:1;">答え合わせ</button>'
+    +   '<button class="btn-secondary" id="cwHint" style="flex:1;">ヒントを1文字見る</button>'
+    + '</div>'
+    + '<p id="cwFeedback" class="feedback-text"></p>'
+    + '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;">'
+    +   '<div><p style="font-size:13px;font-weight:700;margin:0 0 6px;">よこ</p><p style="font-size:13px;line-height:1.7;margin:0;">2. 「ぬ」の已然形<br>3. 「る」の已然形<br>5. 「けり」の已然形</p></div>'
+    +   '<div><p style="font-size:13px;font-weight:700;margin:0 0 6px;">たて</p><p style="font-size:13px;line-height:1.7;margin:0;">1. 「べし」の已然形<br>2. 「ぬ」の連体形<br>4. 「る」の命令形</p></div>'
+    + '</div>';
+
+  var gridEl = container.querySelector('#cwGrid');
+  var feedback = container.querySelector('#cwFeedback');
+  var checkBtn = container.querySelector('#cwCheck');
+  var hintBtn = container.querySelector('#cwHint');
+  var cells = [];
+
+  CROSSWORD_LAYOUT.forEach(function(row){
+    row.forEach(function(cell){
+      var div = document.createElement('div');
+      div.style.position = 'relative';
+      div.style.width = '32px';
+      div.style.height = '32px';
+      if(cell.block){
+        div.style.background = 'var(--border)';
+        div.style.borderRadius = '2px';
+      } else {
+        div.style.border = '1px solid var(--border)';
+        div.style.background = 'var(--card)';
+        div.style.borderRadius = '2px';
+        var input = document.createElement('input');
+        input.maxLength = 1;
+        input.style.width = '100%';
+        input.style.height = '100%';
+        input.style.border = 'none';
+        input.style.background = 'transparent';
+        input.style.textAlign = 'center';
+        input.style.fontSize = '16px';
+        input.style.fontFamily = 'inherit';
+        input.style.padding = '0';
+        input.dataset.answer = cell.ch;
+        div.appendChild(input);
+        cells.push(input);
+        if(cell.num){
+          var label = document.createElement('span');
+          label.textContent = cell.num;
+          label.style.position = 'absolute';
+          label.style.top = '0px';
+          label.style.left = '2px';
+          label.style.fontSize = '9px';
+          label.style.color = 'var(--ink-soft)';
+          label.style.pointerEvents = 'none';
+          div.appendChild(label);
+        }
+      }
+      gridEl.appendChild(div);
+    });
+  });
+
+  function reportProgress(correctCount){
+    onExit(Math.round((correctCount/cells.length)*100));
+  }
+
+  function checkAnswers(){
+    var correctCount = 0;
+    cells.forEach(function(input){
+      if(input.value===input.dataset.answer){
+        input.style.color = 'var(--bamboo)';
+        correctCount++;
+      } else if(input.value.length>0){
+        input.style.color = 'var(--danger)';
+      } else {
+        input.style.color = 'var(--ink)';
+      }
+    });
+    reportProgress(correctCount);
+    if(correctCount===cells.length){
+      feedback.className = 'feedback-text success';
+      feedback.textContent = '完成。すべての活用形が正しく埋まりました。';
+    } else {
+      feedback.className = 'feedback-text';
+      feedback.textContent = correctCount+' / '+cells.length+' マスが正解。緑のマスはそのままでよい。';
+    }
+  }
+
+  function giveHint(){
+    var empty = cells.filter(function(input){ return input.value!==input.dataset.answer; });
+    if(empty.length===0){
+      feedback.className = 'feedback-text success';
+      feedback.textContent = 'もう完成しています。';
+      return;
+    }
+    var target = empty[Math.floor(Math.random()*empty.length)];
+    target.value = target.dataset.answer;
+    target.style.color = 'var(--vermillion)';
+    feedback.className = 'feedback-text';
+    feedback.textContent = '1マス埋めました。残りは自分で考えてみよう。';
+  }
+
+  checkBtn.addEventListener('click', checkAnswers);
+  hintBtn.addEventListener('click', giveHint);
+}
+
+/* ---------- Stage 6: 苦手克服の道 (review of past mistakes) ---------- */
+var REVIEW_BASE_BY_FORM = {未然形:"見", 連用形:"咲き", 終止形:"過ぐ", 連体形:"過ぐる", 已然形:"過ぐれ", 命令形:"見よ"};
+
+function permutations3(arr){
+  var result = [];
+  for(var i=0;i<3;i++){
+    for(var j=0;j<3;j++){
+      for(var k=0;k<3;k++){
+        if(i!==j && j!==k && i!==k) result.push([arr[i],arr[j],arr[k]]);
+      }
+    }
+  }
+  return result;
+}
+
+function buildReviewRound(id){
+  var underscoreIdx = id.indexOf('_');
+  var prefix = id.slice(0, underscoreIdx);
+  var rest = id.slice(underscoreIdx+1);
+
+  if(prefix==='s1'){
+    var item1 = STAGE1_ITEMS[parseInt(rest,10)];
+    if(!item1) return null;
+    var cats = ["過去","完了","打消","推量"];
+    return {
+      promptHtml: item1.pre + '<mark class="hl">' + item1.word + '</mark>' + item1.post,
+      hintText: '出典: 識別道場',
+      options: cats.map(function(c){ return {label:c, correct:c===item1.cat}; }),
+      note: item1.note
+    };
+  }
+  if(prefix==='s2easy' || prefix==='s2hard'){
+    var pool = prefix==='s2easy' ? buildStage2EasyItems() : STAGE2_HARD_ITEMS;
+    var item2 = pool[parseInt(rest,10)];
+    if(!item2) return null;
+    return {
+      promptHtml: item2.base + '＋<mark class="hl">＿＿</mark>',
+      hintText: item2.base + 'は' + item2.form,
+      options: [item2.correct].concat(item2.distractors).map(function(o){ return {label:o, correct:o===item2.correct}; }),
+      note: item2.note
+    };
+  }
+  if(prefix==='s3'){
+    var lastUnderscore = rest.lastIndexOf('_');
+    var word = rest.slice(0, lastUnderscore);
+    var form = rest.slice(lastUnderscore+1);
+    var wordObj = STAGE3_WORDS.filter(function(w){ return w.word===word; })[0];
+    if(!wordObj) return null;
+    var uniqueVals = [];
+    FORM_ORDER.forEach(function(f){
+      var v = wordObj.values[f];
+      if(v!==null && uniqueVals.indexOf(v)===-1) uniqueVals.push(v);
+    });
+    var base = REVIEW_BASE_BY_FORM[form] || '見';
+    return {
+      promptHtml: base + '＋<mark class="hl">＿＿</mark>',
+      hintText: base + 'は' + form + '（「' + word + '」の活用形から選ぶ）',
+      options: uniqueVals.map(function(v){ return {label:v, correct:v===wordObj.values[form]}; }),
+      note: wordObj.notes[form]
+    };
+  }
+  if(prefix==='s4'){
+    var item4 = STAGE4_ITEMS[parseInt(rest,10)];
+    if(!item4) return null;
+    var correctStr = item4.pieces.join('');
+    var perms = shuffle(permutations3(item4.pieces)).map(function(p){ return p.join(''); });
+    var wrongOpts = [];
+    perms.forEach(function(p){
+      if(p!==correctStr && wrongOpts.indexOf(p)===-1 && wrongOpts.length<3) wrongOpts.push(p);
+    });
+    return {
+      promptHtml: '「' + item4.meaning + '」という意味の組み立ては？',
+      hintText: '出典: 一文組み立て橋',
+      options: [correctStr].concat(wrongOpts).map(function(o){ return {label:o, correct:o===correctStr}; }),
+      note: item4.explain
+    };
+  }
+  if(prefix==='s5'){
+    var item5 = STAGE5_ITEMS[parseInt(rest,10)];
+    if(!item5) return null;
+    return {
+      promptHtml: item5.pre + '<mark class="hl">＿</mark>' + item5.post,
+      hintText: '→ ' + item5.meaning,
+      options: shuffle(item5.options).map(function(o){ return {label:o, correct:o===item5.correct}; }),
+      note: item5.note
+    };
+  }
+  return null;
+}
+
+function initStage6(container, onExit){
+  var mistakeIds = loadMistakes().filter(function(id){ return buildReviewRound(id)!==null; });
+
+  if(mistakeIds.length===0){
+    container.innerHTML = ''
+      + '<div class="paper-card">'
+      +   '<p style="margin:0 0 8px;font-size:16px;font-weight:500;">今のところ間違えた問題はありません</p>'
+      +   '<p style="margin:0;font-size:13px;color:var(--ink-soft);">他のステージで間違えると、ここに集まって復習できるようになります。</p>'
+      + '</div>';
+    onExit(0);
+    return;
+  }
+
+  makeQuizRunner(container, {
+    items: mistakeIds,
+    timeStart: 9000,
+    timeFloor: 4000,
+    timeStep: 500,
+    pauseMs: 1500,
+    onExit: onExit,
+    getId: function(id){ return id; },
+    getRound: function(id){
+      return buildReviewRound(id) || { promptHtml:'', options:[], note:'' };
+    }
+  });
+}
+
+INIT_FNS = { s1:initStage1, s2:initStage2, s3:initStage3, s4:initStage4, s5:initStage5, s6:initStage6, s7:initStage7 };
+
+renderHome();
+})();
+</script>
+</body>
+</html>
